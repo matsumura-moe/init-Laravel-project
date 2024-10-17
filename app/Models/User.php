@@ -41,4 +41,15 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    // Relationship
+    public function idols()
+    {
+        return $this->belongsToMany(
+            Idol::class,    // 結合したいモデル
+            'user_idols',   // 中間テーブル名
+            'user_id',          // 自分自身（Userモデル）に対応する（中間テーブルの）フィールド
+            'idol_id'       // 取得したいテーブルに対応する（中間テーブルの）フィールド
+        )->orderBy('id', 'asc');
+    }
 }

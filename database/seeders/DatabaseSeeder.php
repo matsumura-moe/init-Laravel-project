@@ -20,5 +20,7 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+        $this->call(IdolSeeder::class);      // 追加 
+        $this->call(UserIdolSeeder::class);  // 追加 
     }
 }
