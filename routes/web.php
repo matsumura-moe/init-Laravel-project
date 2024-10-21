@@ -27,7 +27,7 @@ Route::get('/dashboard', function () {
 require __DIR__.'/auth.php';
 
 Route::group(['middleware' => ['auth']], function () {                                    // 追記
-    Route::resource('users', UsersController::class, ['only' => ['index', 'show', 'create']]);     // 追記
+    Route::resource('users', UsersController::class, ['only' => ['index', 'show']]);     // 追記
     Route::get('matching', [MatchingController::class, 'show'])->name('matching');
 });
 
@@ -35,3 +35,5 @@ Route::group(['prefix' => 'idols/{id}'], function () {                          
     Route::post('favorites', [FavoritesController::class, 'store'])->name('favorites.favorite');        // 追加
     Route::delete('unfavorite', [FavoritesController::class, 'destroy'])->name('favorites.unfavorite'); // 追加
 }); 
+
+Route::put('/user/{id}/update-image', [UsersController::class, 'updateImage'])->name('user.updateImage');

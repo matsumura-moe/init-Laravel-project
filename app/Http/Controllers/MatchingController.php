@@ -25,19 +25,23 @@ class MatchingController extends Controller
          // ユーザーの好きなアイドルのIDを取得
         $idol_ids = $user->idols->pluck('id');
         
-        // マッチする他のユーザーを取得
-        $matching_users = User::where('id', '!=', $user->id) // ログインしているユーザーを除外
-    ->whereHas('idols', function ($query) use ($idol_ids) {
-        // 共通のアイドルがあるかをチェック
-        $query->whereIn('idol_id', $idol_ids);
-    })
-    ->withCount(['idols' => function ($query) use ($idol_ids) {
-        // 一致するアイドルの数をカウント
-        $query->whereIn('idol_id', $idol_ids);
-    }])
-    ->having('idols_count', '>=', self::MIN_MATCHING_COUNT) // 最低マッチ数
-    ->orderBy('idols_count', 'desc') // 降順に並べ替え
-    ->get();
+        // マッチする他のユーザーと共通のアイドルを取得し、降順に並べ替える
+        $matching_users = User::where('id', '!=', $user->id) // ログインユーザー以外を対象
+            ->whereHas('idols', function ($query) use ($idol_ids) {
+                // 共通のアイドルがあるかをチェック
+                $query->whereIn('idol_id', $idol_ids);
+            })
+            ->with(['idols' => function ($query) use ($idol_ids) {
+                // 共通のアイドルのみを取得
+                $query->whereIn('idol_id', $idol_ids);
+            }])
+            ->withCount(['idols' => function ($query) use ($idol_ids) {
+                // 共通のアイドルの数をカウント
+                $query->whereIn('idol_id', $idol_ids);
+            }])
+            ->having('idols_count', '>=', self::MIN_MATCHING_COUNT) // 共通アイドルの数が1以上
+            ->orderBy('idols_count', 'desc') // 共通アイドル数で降順に並べ替え
+            ->get();
 
         // ビューにデータを渡して表示
         return view('matching', [

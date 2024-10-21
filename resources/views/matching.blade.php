@@ -1,19 +1,21 @@
-<html>
-<head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+@extends('layouts.app')
+
+@section('content')
+
+
 <div id="app" class="p-4">
     <h5>{{ $user->name }} さん</h5>
     <div>
-        <span class="badge bg-primary">好きなアイドル</span> {{ $user->idols->pluck('name')->join('、') }}
+        <span>好きなアイドル</span> {{ $user->idols->pluck('name')->join('、') }}
     </div>
     <hr>
-    <h6 class="mb-3">マッチしたユーザー</h6>
-    <ul>
+    <h6>マッチしたユーザー</h6>
+    <ul class="list-unstyled">
     @foreach($matching_users as $matching_user)
-        <li class="mb-3">
-            {{ $matching_user->name }} さん<br>
+        <li class="border rounded p-3 mb-3" style="background-color: #f0f8ff;">
+            <!-- ユーザー名 -->
+            <strong>{{ $matching_user->name }} さん</strong><br>
+            <!-- マッチしたアイドル -->
             <span class="badge bg-success">マッチしたアイドル</span>（{{ $matching_user->idols->count() }}件）
             {{ $matching_user->idols->pluck('name')->join('、') }}
         </li>
@@ -22,3 +24,4 @@
 </div>
 </body>
 </html>
+@endsection
