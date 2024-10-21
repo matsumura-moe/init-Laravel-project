@@ -11,11 +11,11 @@
     <hr>
     <h6 class="mb-3">マッチしたユーザー</h6>
     <ul>
-    @foreach($matched_users as $matched_user)
+    @foreach($matching_users as $matching_user)
         <li class="mb-3">
-            {{ $matched_user->name }} さん<br>
-            <span class="badge bg-success">マッチしたアイドル</span>（{{ $matched_user->idols->count() }}件）
-            {{ $matched_user->idols->pluck('name')->join('、') }}
+            {{ $matching_user->name }} さん<br>
+            <span class="badge bg-success">マッチしたアイドル</span>（{{ $matching_user->idols->count() }}件）
+            {{ $matching_user->idols->pluck('name')->join('、') }}
         </li>
     @endforeach
     </ul>

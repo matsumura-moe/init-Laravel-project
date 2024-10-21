@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\idol;
+use App\Models\UserIdol;
+use Illuminate\Support\Facades\Auth;
 
 class MatchingController extends Controller
 {
@@ -11,28 +14,35 @@ class MatchingController extends Controller
 
     public function show(User $user)
     {
+        
+        $user = Auth::user(); // ログインユーザーを取得
+
+        // 好きなアイドルがいない場合のチェック
+        if (!$user->idols || $user->idols->isEmpty()) {
+            return back()->with('error', 'This user has no favorite idols.');
+        }
+
+         // ユーザーの好きなアイドルのIDを取得
         $idol_ids = $user->idols->pluck('id');
-        $matched_users = User::with(['idols' => function($query) use($idol_ids){ // 同じ「好きなアイドル」を取得
+        
+        // マッチする他のユーザーを取得
+        $matching_users = User::where('id', '!=', $user->id) // ログインしているユーザーを除外
+    ->whereHas('idols', function ($query) use ($idol_ids) {
+        // 共通のアイドルがあるかをチェック
+        $query->whereIn('idol_id', $idol_ids);
+    })
+    ->withCount(['idols' => function ($query) use ($idol_ids) {
+        // 一致するアイドルの数をカウント
+        $query->whereIn('idol_id', $idol_ids);
+    }])
+    ->having('idols_count', '>=', self::MIN_MATCHING_COUNT) // 最低マッチ数
+    ->orderBy('idols_count', 'desc') // 降順に並べ替え
+    ->get();
 
-            $query->whereIn('idol_id', $idol_ids);
-
-        }])
-        ->where('id', '!=', $user->id)  // 自分以外のデータを取得
-        ->get()
-        ->filter(function($matched_user){ // 最低でも `MIN_MATCHING_COUNT` 以上マッチするものだけ
-
-            return ($matched_user->idols->count() >= self::MIN_MATCHING_COUNT);
-
-        })
-        ->sortByDesc(function($matched_user) { // マッチしたアイドルの数で並べ替え（降順）
-
-            return $matched_user->comedians->count();
-
-        });
-
-        return view('matching')->with([
+        // ビューにデータを渡して表示
+        return view('matching', [
             'user' => $user,
-            'matched_users' => $matched_users
+            'matching_users' => $matching_users,
         ]);
     }
 }

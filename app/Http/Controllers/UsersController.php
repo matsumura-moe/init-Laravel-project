@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;                        // 追加 認証
-use App\Models\User;                                        // 追加　ユーザ情報
+use App\Models\User;   
+use App\Models\Idol;                                     // 追加　ユーザ情報
 
 class UsersController extends Controller
 {
@@ -24,10 +25,17 @@ class UsersController extends Controller
     {
         // idの値でユーザを検索して取得
         $user = User::findOrFail($id);
-
+        $idols = Idol::all();
+        
         // ユーザ詳細ビューでそれを表示
         return view('users.show', [
             'user' => $user,
+            'idols' => $idols,
         ]);                                                 // 追加
     }                                                       // 追加
+
+    public function store(Request $request)
+    {
+
+    }
 }

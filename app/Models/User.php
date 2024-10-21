@@ -43,13 +43,64 @@ class User extends Authenticatable
     ];
 
     // Relationship
-    public function idols()
+    public function favorites()
     {
         return $this->belongsToMany(
             Idol::class,    // 結合したいモデル
             'user_idols',   // 中間テーブル名
             'user_id',          // 自分自身（Userモデル）に対応する（中間テーブルの）フィールド
             'idol_id'       // 取得したいテーブルに対応する（中間テーブルの）フィールド
-        )->orderBy('id', 'asc');
+        )->withTimestamps();
+    }
+        /**
+     * $idolIdで指定されたアイドルを推しにする。
+     *
+     * @param  int  $userId
+     * @return bool
+     */
+    public function favorite($idolId)
+    {
+        $exist = $this->is_favorites($idolId);
+        
+        if ($exist) {
+            return false;
+        } else {
+            $this->favorites()->attach($idolId);
+            return true;
+        }
+    }
+    
+    /**
+     * $idolIdで指定されたアイドルを推しから外す。
+     * 
+     * @param  int $userId
+     * @return bool
+     */
+    public function unfavorite($idolId)
+    {
+        $exist = $this->is_favorites($idolId);
+        
+        if ($exist) {
+            $this->favorites()->detach($idolId);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * 指定された$idolIdのアイドルをこのユーザが推し中であるか調べる。推し中ならtrueを返す。
+     * 
+     * @param  int $userId
+     * @return bool
+     */
+    public function is_favorites($idolId)
+    {
+        return $this->favorites()->where('idol_id', $idolId)->exists();
+    }
+
+    public function idols()
+    {
+        return $this->belongsToMany(Idol::class, 'user_idols', 'user_id', 'idol_id');
     }
 }

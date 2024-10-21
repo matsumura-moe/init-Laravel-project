@@ -1,4 +1,6 @@
 @if (Auth::check())
+    {{-- マッチングページへのリンク --}}
+    <li><a class="link link-hover" href="{{ route('matching') }}">Matching</a></li>
     {{-- ユーザ一覧ページへのリンク --}}
     <li><a class="link link-hover" href="{{ route('users.index') }}">Users</a></li>
     {{-- ユーザ詳細ページへのリンク --}}
